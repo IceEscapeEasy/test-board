@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .table-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .main-row {
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .main-row:hover {
+            background-color: #f0f7ff;
+        }
+        .main-content {
+            padding: 16px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topic-title {
+            font-weight: 500;
+            color: #333;
+        }
+        .toggle-icon {
+            color: #4a6fa5;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+        .subtopics {
+            background-color: #f8fbff;
+            display: none;
+            padding: 0;
+        }
+        .subtopic-row {
+            padding: 14px 15px 14px 40px;
+            border-top: 1px dashed #d1e0ff;
+            color: #555;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+        }
+        .subtopic-row:before {
+            content: "•";
+            color: #4a6fa5;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .status {
+            padding: 16px 15px;
+            text-align: center;
+            color: #666;
+            font-weight: 500;
+        }
+        .notes {
+            padding: 16px 15px;
+            color: #777;
+            font-style: italic;
+        }
+        .progress-bar {
+            width: 80px;
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th width="50%">Тема / Тип задания</th>
+                <th width="25%">Статус</th>
+                <th width="25%">Заметки</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- Строки будут сгенерированы JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const tableData = [
+        {
+            title: "115-ФЗ: Основные понятия",
+            subtopics: [
+                "ПОД/ФТ: определение и цели",
+                "Бенефициарный владелец vs выгодоприобретатель",
+                "Риск-ориентированный подход (РОП)",
+                "Обязанности банка по закону"
+            ],
+            status: "В процессе",
+            progress: 60,
+            notes: "Важно запомнить определения"
+        },
+        {
+            title: "Санкционный комплаенс",
+            subtopics: [
+                "Отличие OFAC от 115-ФЗ",
+                "Проверка по спискам (СПФС, ЕС)",
+                "Блокировка средств и отчетность",
+                "Страны повышенного риска"
+            ],
+            status: "Изучено",
+            progress: 100,
+            notes: "Сдать тест до пятницы"
+        },
+        {
+            title: "Красные флаги операций",
+            subtopics: [],
+            status: "Не начато",
+            progress: 0,
+            notes: ""
+        },
+        {
+            title: "Расследование инцидентов",
+            subtopics: [
+                "Сбор информации",
+                "Анализ транзакций",
+                "Подготовка СПО"
+            ],
+            status: "В процессе",
+            progress: 30,
+            notes: "Практика на тестовых данных"
+        },
+        {
+            title: "Взаимодействие с регуляторами",
+            subtopics: [],
+            status: "Не начато",
+            progress: 0,
+            notes: "Жду материалы"
+        }
+    ];
+
+    const tableBody = document.getElementById('table-body');
+
+    tableData.forEach((item, index) => {
+        // Основная строка
+        const mainRow = document.createElement('tr');
+        mainRow.className = 'main-row';
+        mainRow.id = `row-${index}`;
+        
+        mainRow.innerHTML = `
+            <td>
+                <div class="main-content">
+                    <span class="topic-title">${item.title}</span>
+                    ${item.subtopics.length > 0 ? 
+                        `<span class="toggle-icon">▼</span>` : 
+                        `<span style="width: 20px;"></span>`}
+                </div>
+            </td>
+            <td class="status">
+                ${item.status}
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-${index}"></div>
+                </div>
+            </td>
+            <td class="notes">${item.notes}</td>
+        `;
+        
+        tableBody.appendChild(mainRow);
+        
+        // Строка с подтемами (если есть)
+        if (item.subtopics.length > 0) {
+            const subtopicRow = document.createElement('tr');
+            subtopicRow.className = 'subtopics';
+            subtopicRow.id = `subtopics-${index}`;
+            
+            subtopicRow.innerHTML = `
+                <td colspan="3">
+                    ${item.subtopics.map(sub => 
+                        `<div class="subtopic-row">${sub}</div>`
+                    ).join('')}
+                </td>
+            `;
+            
+            tableBody.appendChild(subtopicRow);
+        }
+        
+        // Анимируем прогресс-бар
+        setTimeout(() => {
+            document.getElementById(`progress-${index}`).style.width = `${item.progress}%`;
+        }, 100 * index);
+    });
+
+    // Обработчики кликов для раскрытия/скрытия подтем
+    document.querySelectorAll('.main-row').forEach(row => {
+        row.addEventListener('click', function() {
+            const rowId = this.id.split('-')[1];
+            const subtopicRow = document.getElementById(`subtopics-${rowId}`);
+            const toggleIcon = this.querySelector('.toggle-icon');
+            
+            if (subtopicRow) {
+                if (subtopicRow.style.display === 'table-row') {
+                    subtopicRow.style.display = 'none';
+                    if (toggleIcon) toggleIcon.classList.remove('open');
+                } else {
+                    subtopicRow.style.display = 'table-row';
+                    if (toggleIcon) toggleIcon.classList.add('open');
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
